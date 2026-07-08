@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web Clone</title>
+    <style>
+        :root {
+            --wa-bg: #eae6df;
+            --wa-header-bg: #f0f2f5;
+            --wa-sidebar-bg: #ffffff;
+            --wa-sent-bubble: #d9fdd3;
+            --wa-received-bubble: #ffffff;
+            --wa-text-main: #111b21;
+            --wa-text-muted: #667781;
+            --wa-icon-color: #54656f;
+            --wa-green: #00a884;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #00a884 0%, #00a884 130px, #d1d7db 130px, #d1d7db 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main Window */
+        .whatsapp-container {
+            width: 95vw;
+            max-width: 1396px;
+            height: 95vh;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            display: flex;
+            border-radius: 3px;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 30%;
+            min-width: 340px;
+            max-width: 400px;
+            background: var(--wa-sidebar-bg);
+            border-right: 1px solid #e9edef;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            height: 60px;
+            background: var(--wa-header-bg);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #6366f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .search-container {
+            background: #fff;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e9edef;
+        }
+
+        .search-bar {
+            background: var(--wa-header-bg);
+            border-radius: 8px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+            color: var(--wa-text-main);
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f5;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover, .chat-item.active {
+            background: #f0f2f5;
+        }
+
+        .chat-avatar {
+            width: 49px;
+            height: 49px;
+            border-radius: 50%;
+            background: #00a884;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .chat-details {
+            flex: 1;
+        }
+
+        .chat-title-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .chat-details h4 {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--wa-text-main);
+        }
+
+        .chat-time {
+            font-size: 0.75rem;
+            color: var(--wa-text-muted);
+        }
+
+        .chat-last-msg {
+            font-size: 0.85rem;
+            color: var(--wa-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 220px;
+        }
+
+        /* Right Chat Main Window */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--wa-bg);
+            /* WhatsApp standard wallpaper pattern background clone */
+            background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .chat-header {
+            height: 60px;
+            background: var(--wa-header-bg);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            border-left: 1px solid #d1d7db;
+        }
+
+        .active-user-info h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--wa-text-main);
+        }
+
+        .active-user-info p {
+            font-size: 0.75rem;
+            color: var(--wa-text-muted);
+        }
+
+        /* Messages Area */
+        .chat-messages {
+            flex: 1;
+            padding: 20px 5%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .msg-container {
+            display: flex;
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .msg-container.sent {
+            justify-content: flex-end;
+        }
+
+        .msg-container.received {
+            justify-content: flex-start;
+        }
+
+        .msg-bubble {
+            max-width: 65%;
+            padding: 6px 10px 8px 10px;
+            border-radius: 8px;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: var(--wa-text-main);
+            box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+        }
+
+        .sent .msg-bubble {
+            background: var(--wa-sent-bubble);
+            border-top-right-radius: 0px;
+        }
+
+        .received .msg-bubble {
+            background: var(--wa-received-bubble);
+            border-top-left-radius: 0px;
+        }
+
+        /* Time & Ticks inside bubble */
+        .msg-footer {
+            display: inline-flex;
+            float: right;
+            margin: 4px -4px -4px 12px;
+            font-size: 0.68rem;
+            color: var(--wa-text-muted);
+            align-items: center;
+            gap: 3px;
+        }
+
+        .ticks {
+            color: #53bdeb; /* Blue ticks */
+            font-weight: bold;
+        }
+
+        /* Input Area Footer */
+        .chat-footer {
+            height: 62px;
+            background: #f0f2f5;
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .input-box-wrapper {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 2px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-box-wrapper input {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 8px;
+            font-size: 0.95rem;
+            color: var(--wa-text-main);
+        }
+
+        .send-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--wa-icon-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="whatsapp-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar">ME</div>
+            <div style="color: var(--wa-icon-color); font-size: 1.2rem;">💬 ⋮</div>
+        </div>
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" placeholder="Search or start new chat">
+            </div>
+        </div>
+        <div class="chat-list">
+            <div class="chat-item active">
+                <div class="chat-avatar" style="background: #005c4b;">AD</div>
+                <div class="chat-details">
+                    <div class="chat-title-row">
+                        <h4>Amit Das</h4>
+                        <span class="chat-time">11:45 AM</span>
+                    </div>
+                    <div class="chat-last-msg">Haan bhai, bilkul sahi bola!</div>
+                </div>
+            </div>
+            <div class="chat-item">
+                <div class="chat-avatar" style="background: #232d36;">G</div>
+                <div class="chat-details">
+                    <div class="chat-title-row">
+                        <h4>College Group 🚀</h4>
+                        <span class="chat-time">Yesterday</span>
+                    </div>
+                    <div class="chat-last-msg">Rahul: Kal assignment submit karna hai kya?</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="chat-avatar" style="background: #005c4b; width: 40px; height: 40px; font-size: 0.9rem; margin-right: 12px;">AD</div>
+            <div class="active-user-info">
+                <h3>Amit Das</h3>
+                <p>online</p>
+            </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Received -->
+            <div class="msg-container received">
+                <div class="msg-bubble">
+                    Kya hum aaj shaam ko mil rahe hain project discussion ke liye?
+                    <div class="msg-footer">11:42 AM</div>
+                </div>
+            </div>
+            <!-- Sent -->
+            <div class="msg-container sent">
+                <div class="msg-bubble">
+                    Haan, main 6 baje tak free ho jaunga. Location wahi purani?
+                    <div class="msg-footer">11:44 AM <span class="ticks">✓✓</span></div>
+                </div>
+            </div>
+            <!-- Received -->
+            <div class="msg-container received">
+                <div class="msg-bubble">
+                    Haan bhai, bilkul sahi bola!
+                    <div class="msg-footer">11:45 AM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="chat-footer">
+            <div style="font-size: 1.3rem; color: var(--wa-icon-color); cursor: pointer;">☺ 📎</div>
+            <div class="input-box-wrapper">
+                <input type="text" id="messageInput" placeholder="Type a message" autocomplete="off">
+            </div>
+            <button class="send-icon-btn" id="sendBtn">▶</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (text === '') return;
+
+        // Sent Message Container
+        const msgContainer = document.createElement('div');
+        msgContainer.classList.add('msg-container', 'sent');
+
+        msgContainer.innerHTML = `
+            <div class="msg-bubble">
+                ${text}
+                <div class="msg-footer">${getCurrentTime()} <span class="ticks">✓✓</span></div>
+            </div>
+        `;
+
+        chatMessages.appendChild(msgContainer);
+        messageInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Auto reply to mimic real interaction
+        setTimeout(() => {
+            const replyContainer = document.createElement('div');
+            replyContainer.classList.add('msg-container', 'received');
+            replyContainer.innerHTML = `
+                <div class="msg-bubble">
+                    Ok bro, done hai! 👍
+                    <div class="msg-footer">${getCurrentTime()}</div>
+                </div>
+            `;
+            chatMessages.appendChild(replyContainer);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1500);
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+
+</body>
+</html>
